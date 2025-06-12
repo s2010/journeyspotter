@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  journey-spotter:
+    build: .
+    container_name: journey-spotter
+    volumes:
+      # Mount current directory for persistent data
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./output:/app/output
+      # Mount for video files
+      - ./videos:/app/videos
+      # For X11 forwarding (Linux/macOS)
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    environment:
+      - DISPLAY=${DISPLAY}
+    # For camera access (Linux)
+    devices:
+      - /dev/video0:/dev/video0
+    # For macOS camera access, we'll need different approach
+    network_mode: host
+    stdin_open: true
+    tty: true
+    working_dir: /app
+
+  # Alternative service for headless mode (no camera/display)
+  journey-spotter-headless:
+    build: .
+    container_name: journey-spotter-headless
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./output:/app/output
+      - ./videos:/app/videos
+    environment:
+      - PYTHONUNBUFFERED=1
+    stdin_open: true
+    tty: true
+    working_dir: /app
+    profiles:
+      - headless 
