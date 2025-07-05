@@ -30,11 +30,14 @@ RUN apt-get update && apt-get install -y \
 # Copy requirements first for better caching
 COPY requirements.txt .
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Install Python dependencies with increased timeout and retries
+RUN pip install --default-timeout=1000 --retries=5 -r requirements.txt
 
 # Copy application code
 COPY journey_spotter.py .
+COPY travel_intelligence.py .
+COPY ocr_processor.py .
+COPY demo_ai_travel.py .
 COPY README.md .
 
 # Create directories for data
@@ -43,6 +46,9 @@ RUN mkdir -p /app/data /app/models /app/output
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV DISPLAY=:0
+
+# Add environment variable for OpenAI API key (to be set at runtime)
+ENV OPENAI_API_KEY=""
 
 # Expose port for any future web interface
 EXPOSE 8000
