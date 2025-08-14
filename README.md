@@ -1,51 +1,34 @@
-# Travel Video Analysis Tool
+# JourneySpotter - Travel Video Analysis Tool
 
-Extract travel information from videos/images using OCR + GPT-4, plus anomaly detection for surveillance.
-
-![System Architecture](diagram.png)
+Extract travel information from videos/images using OCR + Groq Llama 3.1 8B model.
 
 ## Quick Start
 
 ```bash
-# Docker (Recommended)
-git clone https://github.com/s2010/journeyspotter.git
-cd journeyspotter && docker-compose up
-
-# Local
-pip install -r requirements.txt
-export OPENAI_API_KEY='your-key'
+docker build -t journeyspotter .
+GROQ_API_KEY=your_groq_api_key_here docker run -p 8000:8000 -e GROQ_API_KEY journeyspotter
 ```
 
-## Usage
+## API Usage
 
-**Travel Analysis:**
 ```bash
-python journey_spotter.py --analyze-travel video.mp4 --output-json results.json
+curl -X POST "http://localhost:8000/analyze" \
+     -H "Content-Type: multipart/form-data" \
+     -F "file=@your_travel_video.mp4"
 ```
 
-**Anomaly Detection:**
+## Demo UI
+
 ```bash
-python journey_spotter.py --record --train
-python journey_spotter.py --input video.mp4 --detect-anomalies
+docker-compose up
+# Visit: http://localhost:8501 (UI) and http://localhost:8000 (API)
 ```
 
-## Output Example
+## Features
 
-```json
-{
-  "locations": [
-    {"location": "Tokyo", "country": "Japan", "type": "capital city"}
-  ],
-  "summary": "Journey from Tokyo to Kyoto via Shinkansen"
-}
-```
+- FastAPI backend with OCR (EasyOCR/Tesseract) + Groq LLM analysis
+- Streamlit demo UI with file upload and sample media
+- Production-ready Docker deployment
+- Free Groq Llama 3.1 8B model (no paid API costs)
 
-## Requirements
-
-- Python 3.9+, OpenAI API key
-- PyTorch, OpenCV, EasyOCR/Tesseract
-- Docker (optional)
-
-## License
-
-MIT 
+MIT License

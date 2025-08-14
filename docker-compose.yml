@@ -1,44 +1,24 @@
-version: '3.8'
-
 services:
-  journey-spotter:
+  # FastAPI Backend
+  api:
     build: .
-    container_name: journey-spotter
-    volumes:
-      # Mount current directory for persistent data
-      - ./data:/app/data
-      - ./models:/app/models
-      - ./output:/app/output
-      # Mount for video files
-      - ./videos:/app/videos
-      # For X11 forwarding (Linux/macOS)
-      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    ports:
+      - "8000:8000"
     environment:
-      - DISPLAY=${DISPLAY}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-    # For camera access (Linux)
-    devices:
-      - /dev/video0:/dev/video0
-    # For macOS camera access, we'll need different approach
-    network_mode: host
-    stdin_open: true
-    tty: true
-    working_dir: /app
-
-  # Alternative service for headless mode (no camera/display)
-  journey-spotter-headless:
-    build: .
-    container_name: journey-spotter-headless
-    volumes:
-      - ./data:/app/data
-      - ./models:/app/models
-      - ./output:/app/output
-      - ./videos:/app/videos
-    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY:-test_key}
       - PYTHONUNBUFFERED=1
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-    stdin_open: true
-    tty: true
-    working_dir: /app
-    profiles:
-      - headless 
+      - PYTHONPATH=/app
+    command: ["python", "main.py", "api", "--host", "0.0.0.0", "--port", "8000"]
+
+  # Streamlit UI
+  ui:
+    build: .
+    ports:
+      - "8501:8501"
+    environment:
+      - UI_API_BASE_URL=http://api:8000
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app
+    depends_on:
+      - api
+    command: ["python", "main.py", "ui", "--port", "8501"]
