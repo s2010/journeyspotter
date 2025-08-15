@@ -4,7 +4,7 @@ Extract information from videos/images using OCR + Llama 3.1 8B model with real-
 
 ## Application Flow
 
-![Application Flow](app-flow.png)
+<img src="app-flow.png" alt="Application Flow" width="400">
 
 *Complete pipeline: Video/Image Input → OCR Processing → LLM Analysis → Anomaly Detection → Results Visualization*
 
@@ -27,6 +27,3 @@ GROQ_API_KEY=your_groq_api_key_here docker run -p 8000:8000 -e GROQ_API_KEY jour
 ## Demo UI
 
 https://anomaly.alrumahi.site
-
-
-MIT License
