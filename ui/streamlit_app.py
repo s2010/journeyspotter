@@ -22,6 +22,31 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Hide Streamlit UI elements (Deploy button and main menu)
+st.markdown("""
+<style>
+    /* Hide Deploy button */
+    .stAppDeployButton {
+        display: none !important;
+    }
+    
+    /* Hide Main Menu (three dots) */
+    .stMainMenu {
+        display: none !important;
+    }
+    
+    /* Hide Streamlit header */
+    header[data-testid="stHeader"] {
+        display: none !important;
+    }
+    
+    /* Optional: Hide footer */
+    .stAppViewContainer > .main > div > div > div > div > section > div {
+        padding-top: 1rem;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 
 class UIService:
     """Service class for UI operations."""

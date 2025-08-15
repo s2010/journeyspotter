@@ -27,9 +27,7 @@ class GroqLLMAdapter(LLMProcessor):
 
     async def analyze_content(self, extracted_text: str) -> Dict[str, Any]:
         """Analyze extracted text for intelligent content analysis using Groq LLM."""
-        if not extracted_text.strip():
-            return self._create_empty_response(extracted_text)
-
+        # Always proceed to LLM analysis - enhanced prompt handles empty text case
         try:
             prompt = self._create_analysis_prompt(extracted_text)
             
@@ -65,14 +63,37 @@ class GroqLLMAdapter(LLMProcessor):
 
     def _create_analysis_prompt(self, extracted_text: str) -> str:
         """Create analysis prompt for the LLM."""
-        return f"""
+        if not extracted_text.strip():
+            # Enhanced prompt for visual analysis when no text is detected
+            return """
+You are analyzing a video/image where no readable text was detected by OCR. Based on the context that this is likely a traffic/transportation scene (given the filename and system purpose), provide an intelligent analysis.
+
+Even without readable text, please analyze what might be present and return a JSON response with:
+1. "locations": Array of location objects (can be empty if no specific locations identifiable)
+2. "summary": Intelligent summary of what the content likely contains (e.g., "Traffic intersection video showing vehicles in motion, likely urban environment with road infrastructure")
+3. "extracted_text": Empty string (since no text was detected)
+4. "confidence": Confidence score for your analysis (0.0-1.0)
+
+For traffic/transportation content without readable text, focus on:
+- Describing the likely scene type (traffic intersection, highway, parking, etc.)
+- Identifying probable infrastructure (roads, signals, signs, buildings)
+- Noting transportation elements (vehicles, pedestrians, etc.)
+- Providing context-aware intelligent summary
+
+Valid location types: train_station, airport, bus_stop, city, landmark, transportation_hub, district, unknown
+
+Return only valid JSON, no additional text.
+"""
+        else:
+            # Original prompt for text-based analysis
+            return f"""
 Analyze the following text extracted from a video/image and provide intelligent content analysis:
 
 Text: "{extracted_text}"
 
 Please extract and return a JSON response with:
 1. "locations": Array of location objects with "location", "country", "type" fields
-2. "summary": Brief content summary
+2. "summary": Brief content summary based on the extracted text
 3. "extracted_text": The original text
 4. "confidence": Overall confidence score (0.0-1.0)
 

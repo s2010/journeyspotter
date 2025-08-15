@@ -29,13 +29,9 @@ COPY adapters/ adapters/
 COPY domain/ domain/
 COPY config/ config/
 COPY main.py .
-COPY create_sample_image.py .
 
 # Copy existing samples directory
 COPY samples/ samples/
-
-# Generate additional sample files (like the image)
-RUN python create_sample_image.py
 
 # Create a startup script for different components
 RUN echo '#!/bin/bash\n\
