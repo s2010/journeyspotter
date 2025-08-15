@@ -241,7 +241,7 @@ def main() -> None:
             st.error("❌ Cannot connect to API")
     
     # Main content area
-    tab1, tab2, tab3 = st.tabs(["📤 Upload File", "🎬 Try Sample", "🧠 Train Anomaly Model"])
+    tab1, tab2 = st.tabs(["📤 Upload File", "🎬 Try Sample"])
     
     with tab1:
         st.header("Upload Your Media")

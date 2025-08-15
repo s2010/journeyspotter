@@ -19,6 +19,8 @@ services:
       - UI_API_BASE_URL=http://api:8000
       - PYTHONUNBUFFERED=1
       - PYTHONPATH=/app
+      - STREAMLIT_SERVER_ADDRESS=0.0.0.0
+      - STREAMLIT_SERVER_PORT=8501
     depends_on:
       - api
     command: ["python", "main.py", "ui", "--port", "8501"]
