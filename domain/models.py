@@ -96,6 +96,11 @@ class AnalysisResult:
     confidence: float
     media_type: MediaType
     filename: str
+    # Anomaly detection results
+    anomaly_scores: Optional[List[float]] = None
+    anomaly_threshold: Optional[float] = None
+    anomalous_frames: Optional[List[bool]] = None
+    anomaly_detected: bool = False
 
     def __post_init__(self) -> None:
         """Validate analysis result."""

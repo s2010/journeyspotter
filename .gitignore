@@ -108,3 +108,5 @@ htmlcov/
 dmypy.json 
 
 .gitignore
+.deploy.sh
+.DEPLOYMENT.md

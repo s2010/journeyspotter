@@ -65,6 +65,52 @@ class VideoSettings(BaseSettings):
         env_prefix = "VIDEO_"
 
 
+class AnomalySettings(BaseSettings):
+    """Anomaly detection configuration."""
+    
+    # Model configuration
+    model_path: str = Field(default="models/anomaly_model.joblib", description="Path to save/load anomaly model")
+    resnet_model: str = Field(default="resnet18", description="ResNet model variant")
+    use_pretrained: bool = Field(default=True, description="Use pretrained ResNet weights")
+    
+    # Training configuration
+    frame_rate: float = Field(default=1.0, description="Frame extraction rate (fps) for training")
+    contamination: float = Field(default=0.1, description="IsolationForest contamination parameter")
+    n_estimators: int = Field(default=100, description="Number of estimators for IsolationForest")
+    random_state: int = Field(default=42, description="Random state for reproducibility")
+    
+    # Inference configuration
+    anomaly_threshold: float = Field(default=-0.1, description="Threshold for anomaly detection")
+    max_inference_frames: int = Field(default=30, description="Maximum frames to process for inference")
+    
+    # Device configuration
+    device: str = Field(default="cpu", description="Device for PyTorch (cpu/cuda)")
+    
+    @validator("frame_rate")
+    def validate_frame_rate(cls, v: float) -> float:
+        """Validate frame rate is positive."""
+        if v <= 0:
+            raise ValueError("frame_rate must be positive")
+        return v
+    
+    @validator("contamination")
+    def validate_contamination(cls, v: float) -> float:
+        """Validate contamination is in valid range."""
+        if not 0.0 < v < 0.5:
+            raise ValueError("contamination must be between 0.0 and 0.5")
+        return v
+    
+    @validator("n_estimators")
+    def validate_n_estimators(cls, v: int) -> int:
+        """Validate n_estimators is positive."""
+        if v <= 0:
+            raise ValueError("n_estimators must be positive")
+        return v
+    
+    class Config:
+        env_prefix = "ANOMALY_"
+
+
 class APISettings(BaseSettings):
     """API server configuration."""
     
@@ -108,6 +154,7 @@ class AppSettings(BaseSettings):
     ocr: OCRSettings = Field(default_factory=OCRSettings)
     llm: LLMSettings = Field(default_factory=LLMSettings)
     video: VideoSettings = Field(default_factory=VideoSettings)
+    anomaly: AnomalySettings = Field(default_factory=AnomalySettings)
     api: APISettings = Field(default_factory=APISettings)
     ui: UISettings = Field(default_factory=UISettings)
     

@@ -12,6 +12,7 @@ import numpy as np
 
 from config.settings import AppSettings
 from core.interfaces import AnalysisService, LLMProcessor, OCRProcessor, VideoProcessor
+from core.anomaly_service import AnomalyService, create_anomaly_service
 from domain.models import AnalysisRequest, AnalysisResult, Location, LocationType, MediaType
 
 logger = logging.getLogger(__name__)
@@ -25,13 +26,15 @@ class MediaAnalysisService(AnalysisService):
         ocr_processor: OCRProcessor,
         llm_processor: LLMProcessor,
         video_processor: VideoProcessor,
-        settings: AppSettings
+        settings: AppSettings,
+        anomaly_service: AnomalyService = None
     ) -> None:
         """Initialize analysis service with injected dependencies."""
         self.ocr_processor = ocr_processor
         self.llm_processor = llm_processor
         self.video_processor = video_processor
         self.settings = settings
+        self.anomaly_service = anomaly_service or create_anomaly_service(settings.anomaly)
         logger.info("Media analysis service initialized")
 
     async def analyze_media(self, request: AnalysisRequest) -> AnalysisResult:
@@ -53,13 +56,33 @@ class MediaAnalysisService(AnalysisService):
             # Convert to domain objects
             locations = self._convert_locations(llm_result.get("locations", []))
             
+            # Perform anomaly detection for videos
+            anomaly_scores = None
+            anomaly_threshold = None
+            anomalous_frames = None
+            anomaly_detected = False
+            
+            if request.media_type == MediaType.VIDEO:
+                try:
+                    anomaly_result = await self.anomaly_service.detect_anomalies(request.file_path)
+                    if anomaly_result:
+                        anomaly_scores, anomaly_threshold, anomalous_frames = anomaly_result
+                        anomaly_detected = any(anomalous_frames) if anomalous_frames else False
+                        logger.info(f"Anomaly detection: {sum(anomalous_frames) if anomalous_frames else 0} anomalous frames detected")
+                except Exception as e:
+                    logger.warning(f"Anomaly detection failed: {e}")
+            
             result = AnalysisResult(
                 locations=locations,
                 summary=llm_result.get("summary", "Analysis completed"),
                 extracted_text=extracted_text,
                 confidence=float(llm_result.get("confidence", 0.0)),
                 media_type=request.media_type,
-                filename=request.filename
+                filename=request.filename,
+                anomaly_scores=anomaly_scores,
+                anomaly_threshold=anomaly_threshold,
+                anomalous_frames=anomalous_frames,
+                anomaly_detected=anomaly_detected
             )
             
             logger.info(f"Analysis completed for {request.filename}: {len(locations)} locations found")
@@ -170,7 +193,14 @@ def create_analysis_service(
     ocr_processor: OCRProcessor,
     llm_processor: LLMProcessor,
     video_processor: VideoProcessor,
-    settings: AppSettings
+    settings: AppSettings,
+    anomaly_service: AnomalyService = None
 ) -> AnalysisService:
     """Factory function to create analysis service."""
-    return MediaAnalysisService(ocr_processor, llm_processor, video_processor, settings)
+    return MediaAnalysisService(
+        ocr_processor=ocr_processor,
+        llm_processor=llm_processor,
+        video_processor=video_processor,
+        settings=settings,
+        anomaly_service=anomaly_service
+    )

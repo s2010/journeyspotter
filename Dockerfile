@@ -33,6 +33,9 @@ COPY main.py .
 # Copy existing samples directory
 COPY samples/ samples/
 
+# Create models directory for anomaly detection
+RUN mkdir -p models/
+
 # Create a startup script for different components
 RUN echo '#!/bin/bash\n\
 case "$1" in\n\

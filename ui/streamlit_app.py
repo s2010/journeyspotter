@@ -9,6 +9,8 @@ from typing import Dict, Optional, Tuple
 
 import requests
 import streamlit as st
+import plotly.graph_objects as go
+import plotly.express as px
 
 from config.settings import get_settings
 
@@ -16,8 +18,8 @@ logger = logging.getLogger(__name__)
 
 # Configure Streamlit page
 st.set_page_config(
-    page_title="JourneySpotter Demo",
-    page_icon="🗺️",
+    page_title="Anomaly Detector Demo",
+    page_icon="🧠",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -85,47 +87,125 @@ class UIService:
             return False
 
 
-def display_analysis_results(results: Dict) -> None:
-    """Display analysis results in a formatted way."""
-    if not results:
+def display_anomaly_results(results: Dict) -> None:
+    """Display anomaly detection results with visualization."""
+    if not results.get("anomaly_scores"):
         return
     
-    # Main results
-    st.subheader("🎯 Analysis Results")
+    st.subheader("🚨 Anomaly Detection Results")
     
-    # Summary
-    if "summary" in results:
-        st.info(f"**Summary:** {results['summary']}")
+    anomaly_scores = results["anomaly_scores"]
+    anomaly_threshold = results.get("anomaly_threshold", -0.1)
+    anomalous_frames = results.get("anomalous_frames", [])
+    anomaly_detected = results.get("anomaly_detected", False)
     
-    # Confidence score
-    if "confidence" in results:
-        confidence = results["confidence"]
-        st.metric("Confidence Score", f"{confidence:.2f}")
+    # Summary metrics
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric("Total Frames", len(anomaly_scores))
+    with col2:
+        anomalous_count = sum(anomalous_frames) if anomalous_frames else 0
+        st.metric("Anomalous Frames", anomalous_count)
+    with col3:
+        anomaly_percentage = (anomalous_count / len(anomaly_scores)) * 100 if anomaly_scores else 0
+        st.metric("Anomaly Rate", f"{anomaly_percentage:.1f}%")
+    with col4:
+        status = "🚨 DETECTED" if anomaly_detected else "✅ NORMAL"
+        st.metric("Status", status)
     
-    # Locations found
-    if "locations" in results and results["locations"]:
-        st.subheader("📍 Locations Detected")
+    # Anomaly score visualization
+    if anomaly_scores:
+        fig = go.Figure()
         
+        # Add anomaly scores line
+        fig.add_trace(go.Scatter(
+            x=list(range(len(anomaly_scores))),
+            y=anomaly_scores,
+            mode='lines+markers',
+            name='Anomaly Score',
+            line=dict(color='blue', width=2),
+            marker=dict(size=4)
+        ))
+        
+        # Add threshold line
+        fig.add_hline(
+            y=anomaly_threshold,
+            line_dash="dash",
+            line_color="red",
+            annotation_text=f"Threshold ({anomaly_threshold})"
+        )
+        
+        # Highlight anomalous frames
+        if anomalous_frames:
+            anomalous_indices = [i for i, is_anomalous in enumerate(anomalous_frames) if is_anomalous]
+            if anomalous_indices:
+                fig.add_trace(go.Scatter(
+                    x=anomalous_indices,
+                    y=[anomaly_scores[i] for i in anomalous_indices],
+                    mode='markers',
+                    name='Anomalous Frames',
+                    marker=dict(color='red', size=8, symbol='x')
+                ))
+        
+        fig.update_layout(
+            title="Anomaly Scores Over Time",
+            xaxis_title="Frame Number",
+            yaxis_title="Anomaly Score",
+            hovermode='x unified',
+            height=400
+        )
+        
+        st.plotly_chart(fig, use_container_width=True)
+        
+        # Frame-by-frame details
+        with st.expander("📋 Frame-by-Frame Details"):
+            for i, (score, is_anomalous) in enumerate(zip(anomaly_scores, anomalous_frames)):
+                status_icon = "🚨" if is_anomalous else "✅"
+                st.write(f"Frame {i+1}: {status_icon} Score: {score:.4f}")
+
+
+def display_analysis_results(results: Dict) -> None:
+    """Display analysis results in a formatted way."""
+    st.subheader("📊 Analysis Results")
+    
+    # Display summary
+    if results.get("summary"):
+        st.markdown("**Summary:**")
+        st.write(results["summary"])
+    
+    # Display extracted text
+    if results.get("extracted_text"):
+        st.markdown("**Extracted Text:**")
+        st.text_area("", results["extracted_text"], height=100, disabled=True)
+    
+    # Display locations
+    if results.get("locations"):
+        st.markdown("**Detected Locations:**")
         for i, location in enumerate(results["locations"], 1):
-            with st.expander(f"Location {i}: {location.get('location', 'Unknown')}"):
-                col1, col2, col3 = st.columns(3)
+            with st.expander(f"Location {i}: {location['location']}"):
+                col1, col2 = st.columns(2)
                 with col1:
-                    st.write(f"**Location:** {location.get('location', 'N/A')}")
+                    st.write(f"**Country:** {location['country']}")
+                    st.write(f"**Type:** {location['type']}")
                 with col2:
-                    st.write(f"**Country:** {location.get('country', 'N/A')}")
-                with col3:
-                    st.write(f"**Type:** {location.get('type', 'N/A')}")
+                    st.write(f"**Confidence:** {location['confidence']:.2%}")
     else:
-        st.warning("No locations detected in the media.")
+        st.info("No locations detected in this media.")
     
-    # Extracted text
-    if "extracted_text" in results and results["extracted_text"]:
-        with st.expander("📝 Extracted Text (OCR)"):
-            st.text_area("Raw OCR Output", results["extracted_text"], height=100, disabled=True)
+    # Display confidence score
+    if "confidence" in results:
+        st.markdown("**Overall Confidence:**")
+        st.progress(results["confidence"])
+        st.write(f"{results['confidence']:.2%}")
     
-    # Raw JSON (for debugging)
-    with st.expander("🔧 Raw API Response"):
-        st.json(results)
+    # Display file info
+    if results.get("filename"):
+        st.markdown("**File Information:**")
+        st.write(f"**Filename:** {results['filename']}")
+        st.write(f"**Type:** {results.get('file_type', 'Unknown')}")
+    
+    # Display anomaly detection results
+    display_anomaly_results(results)
 
 
 def main() -> None:
@@ -161,7 +241,7 @@ def main() -> None:
             st.error("❌ Cannot connect to API")
     
     # Main content area
-    tab1, tab2 = st.tabs(["📤 Upload File", "🎬 Try Sample"])
+    tab1, tab2, tab3 = st.tabs(["📤 Upload File", "🎬 Try Sample", "🧠 Train Anomaly Model"])
     
     with tab1:
         st.header("Upload Your Media")
@@ -225,13 +305,7 @@ def main() -> None:
                         except Exception as e:
                             st.error(f"❌ Failed to read traffic demo file: {str(e)}")
                 else:
-                    st.error("❌ Traffic demo file not found. Please ensure traffic_demo_01.mp4 is in samples/")
-        
-        with col2:
-            st.info("**File:** traffic_demo_01.mp4\n**Size:** ~1.6MB\n**Duration:** 7 seconds\n**Resolution:** 640x360")
-        
-        st.markdown("---")
-        
+                    st.info("No other sample files found.")
         # Other Sample Files
         st.subheader("📁 Other Sample Files")
         samples_dir = Path("samples")

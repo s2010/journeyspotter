@@ -38,6 +38,11 @@ class AnalysisResponse(BaseModel):
     confidence: float = Field(..., ge=0.0, le=1.0, description="Overall confidence score")
     file_type: str = Field(..., description="Type of analyzed file")
     filename: str = Field(..., description="Original filename")
+    # Anomaly detection fields
+    anomaly_scores: Optional[List[float]] = Field(None, description="Anomaly scores per frame (videos only)")
+    anomaly_threshold: Optional[float] = Field(None, description="Anomaly detection threshold")
+    anomalous_frames: Optional[List[bool]] = Field(None, description="Boolean flags for anomalous frames")
+    anomaly_detected: bool = Field(False, description="Whether anomalies were detected")
 
     class Config:
         schema_extra = {
@@ -76,6 +81,54 @@ class HealthResponse(BaseModel):
         }
 
 
+class AnomalyTrainingResponse(BaseModel):
+    """API response model for anomaly training results."""
+    
+    success: bool = Field(..., description="Training success status")
+    message: str = Field(..., description="Training result message")
+    model_info: Optional[dict] = Field(None, description="Model information after training")
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "success": True,
+                "message": "Anomaly model trained successfully",
+                "model_info": {
+                    "is_trained": True,
+                    "resnet_model": "resnet18",
+                    "contamination": 0.1
+                }
+            }
+        }
+
+
+class AnomalyModelInfoResponse(BaseModel):
+    """API response model for anomaly model information."""
+    
+    is_trained: bool = Field(..., description="Whether model is trained")
+    model_path: str = Field(..., description="Path to model file")
+    model_exists: bool = Field(..., description="Whether model file exists")
+    resnet_model: str = Field(..., description="ResNet model variant")
+    contamination: float = Field(..., description="IsolationForest contamination parameter")
+    n_estimators: int = Field(..., description="Number of estimators")
+    anomaly_threshold: float = Field(..., description="Anomaly detection threshold")
+    device: str = Field(..., description="PyTorch device")
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "is_trained": True,
+                "model_path": "models/anomaly_model.joblib",
+                "model_exists": True,
+                "resnet_model": "resnet18",
+                "contamination": 0.1,
+                "n_estimators": 100,
+                "anomaly_threshold": -0.1,
+                "device": "cpu"
+            }
+        }
+
+
 class ErrorResponse(BaseModel):
     """API response model for errors."""
     
@@ -85,7 +138,7 @@ class ErrorResponse(BaseModel):
     class Config:
         schema_extra = {
             "example": {
-                "detail": "Unsupported file format",
+                "detail": "File format not supported",
                 "error_type": "ValidationError"
             }
         }
