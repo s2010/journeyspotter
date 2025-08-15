@@ -37,7 +37,7 @@ def create_app() -> FastAPI:
     
     app = FastAPI(
         title=settings.app_name,
-        description="Travel video/image analysis using OCR + Groq LLM",
+        description="Video/image analysis using OCR + intelligent processing",
         version=settings.version,
         lifespan=lifespan
     )

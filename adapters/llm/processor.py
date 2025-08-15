@@ -1,6 +1,6 @@
 """
 LLM adapter implementation using Groq API.
-Provides travel intelligence analysis capabilities.
+Provides intelligent content analysis capabilities.
 """
 
 import json
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class GroqLLMAdapter(LLMProcessor):
-    """Groq LLM implementation for travel intelligence analysis."""
+    """Groq LLM implementation for intelligent content analysis."""
 
     def __init__(self, settings: LLMSettings) -> None:
         """Initialize Groq LLM adapter."""
@@ -25,8 +25,8 @@ class GroqLLMAdapter(LLMProcessor):
         self.client = Groq(api_key=settings.api_key)
         logger.info(f"Groq LLM initialized with model: {settings.model}")
 
-    async def analyze_travel_content(self, extracted_text: str) -> Dict[str, Any]:
-        """Analyze extracted text for travel intelligence using Groq LLM."""
+    async def analyze_content(self, extracted_text: str) -> Dict[str, Any]:
+        """Analyze extracted text for intelligent content analysis using Groq LLM."""
         if not extracted_text.strip():
             return self._create_empty_response(extracted_text)
 
@@ -38,7 +38,7 @@ class GroqLLMAdapter(LLMProcessor):
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are a travel intelligence AI that extracts location information from text. Always respond with valid JSON only."
+                        "content": "You are an intelligent content analyzer that extracts location information from text. Always respond with valid JSON only."
                     },
                     {
                         "role": "user",
@@ -66,13 +66,13 @@ class GroqLLMAdapter(LLMProcessor):
     def _create_analysis_prompt(self, extracted_text: str) -> str:
         """Create analysis prompt for the LLM."""
         return f"""
-Analyze the following text extracted from a travel video/image and provide travel intelligence:
+Analyze the following text extracted from a video/image and provide intelligent content analysis:
 
 Text: "{extracted_text}"
 
 Please extract and return a JSON response with:
 1. "locations": Array of location objects with "location", "country", "type" fields
-2. "summary": Brief travel summary
+2. "summary": Brief content summary
 3. "extracted_text": The original text
 4. "confidence": Overall confidence score (0.0-1.0)
 
@@ -81,7 +81,7 @@ Focus on identifying:
 - Transportation hubs (airports, train stations, bus stops)
 - Tourist attractions, landmarks
 - Street names, addresses
-- Travel-related signage
+- Signage and text content
 
 Valid location types: train_station, airport, bus_stop, city, landmark, transportation_hub, district, unknown
 
@@ -93,7 +93,7 @@ Return only valid JSON, no additional text.
         # Ensure required fields exist
         normalized = {
             "locations": [],
-            "summary": result.get("summary", "Travel analysis completed"),
+            "summary": result.get("summary", "Content analysis completed"),
             "extracted_text": extracted_text,
             "confidence": float(result.get("confidence", 0.5))
         }

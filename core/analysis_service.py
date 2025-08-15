@@ -48,7 +48,7 @@ class MediaAnalysisService(AnalysisService):
                 raise ValueError(f"Unsupported media type: {request.media_type}")
 
             # Analyze extracted text with LLM
-            llm_result = await self.llm_processor.analyze_travel_content(extracted_text)
+            llm_result = await self.llm_processor.analyze_content(extracted_text)
             
             # Convert to domain objects
             locations = self._convert_locations(llm_result.get("locations", []))

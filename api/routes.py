@@ -46,7 +46,7 @@ async def analyze_media(
     settings: Annotated[AppSettings, Depends(get_app_settings)] = None
 ) -> AnalysisResponse:
     """
-    Analyze uploaded video/image for travel intelligence.
+    Analyze uploaded video/image for intelligent content analysis.
     
     Accepts: video files (.mp4, .avi, .mov, .mkv) or image files (.jpg, .jpeg, .png, .bmp, .tiff)
     Returns: JSON with locations, summary, extracted text, and confidence score

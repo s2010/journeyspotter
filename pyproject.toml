@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "journeyspotter"
 version = "1.0.0"
-description = "Travel video/image analysis using OCR + Groq LLM"
+description = "Video/image analysis using OCR + Groq LLM"
 authors = [{name = "JourneySpotter Team"}]
 license = {text = "MIT"}
 requires-python = ">=3.9"

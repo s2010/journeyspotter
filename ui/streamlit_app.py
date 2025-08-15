@@ -1,6 +1,6 @@
 """
 Streamlit UI for JourneySpotter demo.
-Provides a user-friendly interface for travel video/image analysis.
+Provides a user-friendly interface for video/image analysis.
 """
 
 import logging
@@ -108,17 +108,17 @@ def main() -> None:
     ui_service = UIService()
     
     # Header
-    st.title("🗺️ JourneySpotter Demo")
-    st.markdown("**Video/image analysis using OCR + Groq LLM**")
+    st.title("Anomaly Detector Demo")
+    st.markdown("**Video/image analysis with intelligent text processing**")
     st.markdown("---")
     
     # Sidebar
     with st.sidebar:
         st.header("ℹ️ About")
         st.markdown("""
-        This demo analyzes travel videos and images to:
+        This demo analyzes videos and images to:
         - Extract text using OCR (EasyOCR/Tesseract)
-        - Identify locations and travel information
+        - Identify locations and content information
         - Provide intelligence analysis
         """)
         
@@ -144,7 +144,7 @@ def main() -> None:
         uploaded_file = st.file_uploader(
             "Choose a video or image file",
             type=['jpg', 'jpeg', 'png', 'bmp', 'tiff', 'mp4', 'avi', 'mov', 'mkv'],
-            help="Upload a travel video or image for analysis"
+            help="Upload a video or image for analysis"
         )
         
         if uploaded_file is not None:
@@ -167,21 +167,60 @@ def main() -> None:
     
     with tab2:
         st.header("Try Sample Media")
-        st.markdown("Use our provided sample files to test the system:")
         
-        # Check for sample files
+        # Featured Traffic Demo
+        st.subheader("🚗 Traffic Analysis Demo")
+        st.markdown("""
+        **Featured Demo:** Real traffic video analysis with intelligent text processing
+        - 7-second traffic intersection footage
+        - Real-time text extraction from signs, license plates, and road markings
+        - Advanced pattern recognition and content analysis
+        """)
+        
+        col1, col2 = st.columns([2, 1])
+        with col1:
+            if st.button("🎯 Analyze Traffic Demo", type="primary", use_container_width=True):
+                traffic_sample = "traffic_demo_01.mp4"
+                sample_path = Path("samples") / traffic_sample
+                
+                if sample_path.exists():
+                    with st.spinner("🔍 Analyzing traffic video with intelligent processing..."):
+                        try:
+                            with open(sample_path, "rb") as f:
+                                file_content = f.read()
+                            
+                            results, error = ui_service.call_analyze_api(file_content, traffic_sample)
+                            
+                            if error:
+                                st.error(f"❌ Analysis failed: {error}")
+                            else:
+                                st.success("✅ Intelligent analysis completed!")
+                                display_analysis_results(results)
+                                
+                        except Exception as e:
+                            st.error(f"❌ Failed to read traffic demo file: {str(e)}")
+                else:
+                    st.error("❌ Traffic demo file not found. Please ensure traffic_demo_01.mp4 is in samples/")
+        
+        with col2:
+            st.info("**File:** traffic_demo_01.mp4\n**Size:** ~1.6MB\n**Duration:** 7 seconds\n**Resolution:** 640x360")
+        
+        st.markdown("---")
+        
+        # Other Sample Files
+        st.subheader("📁 Other Sample Files")
         samples_dir = Path("samples")
         if samples_dir.exists():
-            sample_files = list(samples_dir.glob("*"))
+            sample_files = [f for f in samples_dir.glob("*") if f.is_file() and f.name != "traffic_demo_01.mp4"]
             
             if sample_files:
                 selected_sample = st.selectbox(
-                    "Choose a sample file:",
+                    "Choose another sample file:",
                     options=[f.name for f in sample_files],
                     help="Select a sample file to analyze"
                 )
                 
-                if st.button("🎯 Analyze Sample", type="primary"):
+                if st.button("🔍 Analyze Other Sample", type="secondary"):
                     sample_path = samples_dir / selected_sample
                     
                     with st.spinner(f"Analyzing {selected_sample}..."):
@@ -199,31 +238,15 @@ def main() -> None:
                         except Exception as e:
                             st.error(f"❌ Failed to read sample file: {str(e)}")
             else:
-                st.warning("No sample files found in the samples/ directory.")
+                st.info("Traffic demo is the primary sample. Other samples will appear here when available.")
         else:
             st.warning("Samples directory not found. Sample files will be available after setup.")
-            
-            # Show demo results instead
-            st.subheader("📋 Demo Results Preview")
-            demo_results = {
-                "locations": [
-                    {"location": "Tokyo Station", "country": "Japan", "type": "train_station"},
-                    {"location": "Shibuya", "country": "Japan", "type": "district"}
-                ],
-                "summary": "Journey through Tokyo featuring major transportation hubs and districts",
-                "extracted_text": "Tokyo Station Platform 1 Shibuya Crossing JR Yamanote Line",
-                "confidence": 0.85,
-                "file_type": "image"
-            }
-            display_analysis_results(demo_results)
     
     # Footer
     st.markdown("---")
     st.markdown("""
     <div style='text-align: center'>
-        <p>🚀 Powered by <strong>Groq Llama 3.1 8B</strong> | 
-        🔍 OCR by <strong>EasyOCR/Tesseract</strong> | 
-        ⚡ Built with <strong>FastAPI + Streamlit</strong></p>
+         Built with ❤️ and lots of matcha
     </div>
     """, unsafe_allow_html=True)
 

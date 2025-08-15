@@ -30,8 +30,8 @@ class LLMProcessor(ABC):
     """Abstract base class for LLM processing."""
 
     @abstractmethod
-    async def analyze_travel_content(self, extracted_text: str) -> Dict[str, any]:
-        """Analyze extracted text for travel intelligence."""
+    async def analyze_content(self, extracted_text: str) -> Dict[str, any]:
+        """Analyze extracted text for intelligent content analysis."""
         pass
 
 

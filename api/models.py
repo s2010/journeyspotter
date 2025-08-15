@@ -50,11 +50,11 @@ class AnalysisResponse(BaseModel):
                         "confidence": 0.85
                     }
                 ],
-                "summary": "Travel analysis of Tokyo Station area",
+                "summary": "Content analysis of Tokyo Station area",
                 "extracted_text": "TOKYO STATION Platform 7 Shinkansen",
                 "confidence": 0.8,
                 "file_type": "image",
-                "filename": "travel_photo.jpg"
+                "filename": "sample_photo.jpg"
             }
         }
 

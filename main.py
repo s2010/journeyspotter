@@ -25,7 +25,7 @@ def setup_logging(log_level: str) -> None:
 @click.group()
 @click.option("--log-level", default="INFO", help="Logging level")
 def cli(log_level: str) -> None:
-    """JourneySpotter - Travel video/image analysis using OCR + Groq LLM."""
+    """JourneySpotter - Video/image analysis using OCR + intelligent processing."""
     setup_logging(log_level)
 
 
