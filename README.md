@@ -8,13 +8,6 @@ Extract information from videos/images using OCR + Llama 3.1 8B model with real-
 
 *Complete pipeline: Video/Image Input → OCR Processing → LLM Analysis → Anomaly Detection → Results Visualization*
 
-## Quick Start
-
-```bash
-docker build -t journeyspotter .
-GROQ_API_KEY=your_groq_api_key_here docker run -p 8000:8000 -e GROQ_API_KEY journeyspotter
-```
-
 ## Features
 
 - **OCR Analysis**: EasyOCR/Tesseract text extraction
@@ -23,6 +16,13 @@ GROQ_API_KEY=your_groq_api_key_here docker run -p 8000:8000 -e GROQ_API_KEY jour
 - **Interactive UI**: Streamlit with real-time visualization
 - **Production Ready**: Docker, modular architecture, comprehensive tests
 - Llama 3.1 8B model
+
+## Quick Start
+
+```bash
+docker build -t journeyspotter .
+GROQ_API_KEY=your_groq_api_key_here docker run -p 8000:8000 -e GROQ_API_KEY journeyspotter
+```
 
 ## Demo UI
 
