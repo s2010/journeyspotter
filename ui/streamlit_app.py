@@ -241,36 +241,9 @@ def main() -> None:
             st.error("❌ Cannot connect to API")
     
     # Main content area
-    tab1, tab2 = st.tabs(["📤 Upload File", "🎬 Try Sample"])
+    tab1, tab2 = st.tabs(["🎬 Try Sample", "📤 Upload File"])
     
     with tab1:
-        st.header("Upload Your Media")
-        
-        uploaded_file = st.file_uploader(
-            "Choose a video or image file",
-            type=['jpg', 'jpeg', 'png', 'bmp', 'tiff', 'mp4', 'avi', 'mov', 'mkv'],
-            help="Upload a video or image for analysis"
-        )
-        
-        if uploaded_file is not None:
-            # Display file info
-            st.success(f"📁 File uploaded: {uploaded_file.name} ({uploaded_file.size} bytes)")
-            
-            # Analyze button
-            if st.button("🔍 Analyze Media", type="primary"):
-                with st.spinner("Analyzing media... This may take a few moments."):
-                    # Read file content
-                    file_content = uploaded_file.read()
-                    
-                    # Call API
-                    results, error = ui_service.call_analyze_api(file_content, uploaded_file.name)
-                    
-                    if error:
-                        st.error(f"❌ Analysis failed: {error}")
-                    else:
-                        display_analysis_results(results)
-    
-    with tab2:
         st.header("Try Sample Media")
         
         # Featured Traffic Demo
@@ -340,6 +313,33 @@ def main() -> None:
                 st.info("Traffic demo is the primary sample. Other samples will appear here when available.")
         else:
             st.warning("Samples directory not found. Sample files will be available after setup.")
+    
+    with tab2:
+        st.header("Upload Your Media")
+        
+        uploaded_file = st.file_uploader(
+            "Choose a video or image file",
+            type=['jpg', 'jpeg', 'png', 'bmp', 'tiff', 'mp4', 'avi', 'mov', 'mkv'],
+            help="Upload a video or image for analysis"
+        )
+        
+        if uploaded_file is not None:
+            # Display file info
+            st.success(f"📁 File uploaded: {uploaded_file.name} ({uploaded_file.size} bytes)")
+            
+            # Analyze button
+            if st.button("🔍 Analyze Media", type="primary"):
+                with st.spinner("Analyzing media... This may take a few moments."):
+                    # Read file content
+                    file_content = uploaded_file.read()
+                    
+                    # Call API
+                    results, error = ui_service.call_analyze_api(file_content, uploaded_file.name)
+                    
+                    if error:
+                        st.error(f"❌ Analysis failed: {error}")
+                    else:
+                        display_analysis_results(results)
     
     # Footer
     st.markdown("---")
