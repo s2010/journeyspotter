@@ -28,6 +28,7 @@ COPY core/ core/
 COPY adapters/ adapters/
 COPY domain/ domain/
 COPY config/ config/
+COPY .streamlit/ .streamlit/
 COPY main.py .
 
 # Copy existing samples directory
