@@ -16,7 +16,7 @@ services:
     ports:
       - "8501:8501"
     environment:
-      - UI_API_BASE_URL=http://api:8000
+      - UI_API_BASE_URL=${UI_API_BASE_URL:-http://api:8000}
       - PYTHONUNBUFFERED=1
       - PYTHONPATH=/app
       - STREAMLIT_SERVER_ADDRESS=0.0.0.0

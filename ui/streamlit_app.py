@@ -65,7 +65,7 @@ class UIService:
             response = requests.post(
                 f"{self.api_base_url}/analyze", 
                 files=files, 
-                timeout=30
+                timeout=60  # Increased timeout for large files
             )
             
             if response.status_code == 200:
@@ -73,10 +73,14 @@ class UIService:
             else:
                 return None, f"API Error {response.status_code}: {response.text}"
                 
-        except requests.exceptions.ConnectionError:
-            return None, "Could not connect to API. Make sure the backend is running."
-        except Exception as e:
+        except requests.exceptions.ConnectionError as e:
+            return None, f"Could not connect to API at {self.api_base_url}. Check if the backend is running and the URL is correct."
+        except requests.exceptions.ReadTimeout as e:
+            return None, f"Request timed out. The analysis may take longer for large files. Try again or contact support."
+        except requests.exceptions.RequestException as e:
             return None, f"Request failed: {str(e)}"
+        except Exception as e:
+            return None, f"Unexpected error: {str(e)}"
     
     def check_api_health(self) -> bool:
         """Check if API is healthy."""
