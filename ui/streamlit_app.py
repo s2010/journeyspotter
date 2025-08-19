@@ -65,7 +65,7 @@ class UIService:
             response = requests.post(
                 f"{self.api_base_url}/analyze", 
                 files=files, 
-                timeout=60  # Increased timeout for large files
+                timeout=180  # Increased timeout for large video files
             )
             
             if response.status_code == 200:

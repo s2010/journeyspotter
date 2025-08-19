@@ -164,7 +164,7 @@ class AppSettings(BaseSettings):
     log_level: str = Field(default="INFO", description="Logging level")
     
     # File handling
-    max_file_size: int = Field(default=50 * 1024 * 1024, description="Maximum file size in bytes (50MB)")
+    max_file_size: int = Field(default=200 * 1024 * 1024, description="Maximum file size in bytes (200MB)")
     temp_dir: Path = Field(default=Path("/tmp"), description="Temporary directory for file processing")
     
     @validator("log_level")
