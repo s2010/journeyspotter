@@ -3,7 +3,7 @@ services:
   api:
     build: .
     ports:
-      - "8000:8000"
+      - "8002:8000"
     environment:
       - GROQ_API_KEY=${GROQ_API_KEY:-test_key}
       - PYTHONUNBUFFERED=1
@@ -14,7 +14,7 @@ services:
   ui:
     build: .
     ports:
-      - "8501:8501"
+      - "8503:8501"
     environment:
       - UI_API_BASE_URL=${UI_API_BASE_URL:-http://api:8000}
       - PYTHONUNBUFFERED=1
