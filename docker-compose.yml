@@ -5,10 +5,11 @@ services:
     ports:
       - "8002:8000"
     environment:
-      - GROQ_API_KEY=${GROQ_API_KEY:-test_key}
       - PYTHONUNBUFFERED=1
       - PYTHONPATH=/app
-    command: ["python", "main.py", "api", "--host", "0.0.0.0", "--port", "8000"]
+    volumes:
+      - .:/app
+    command: ["python", "-m", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000", "--timeout-keep-alive", "300", "--timeout-graceful-shutdown", "30"]
 
   # Streamlit UI
   ui:
